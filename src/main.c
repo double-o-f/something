@@ -175,22 +175,11 @@ void drawLine2D(double x1, double z1, double x2, double z2) {
     double screenX2 = ((x2 + 1) * 0.5 * (SCREEN_WIDTH - 1));
     double screenZ2 = ((z2 + 1) * 0.5 * (SCREEN_HEIGHT - 1));
     
-    //double sX = sX2 - sX1;
-    //double sZ = sZ2 - sZ1;
     double x = screenX2 - screenX1;
     double z = screenZ2 - screenZ1;
 
-    //int screenX1 = (int)sX1;
-    //int screenZ1 = (int)sZ1;
-    //int screenX2 = (int)sX2;
-    //int screenZ2 = (int)sZ2;
-    
-    //int x = screenX2 - screenX1;
-    //int z = screenZ2 - screenZ1;
-
     double step;
     if (fabs(x) >= fabs(z)) {
-        //step = sZ / sX;
         step = z / x;
 
         if (getSign(x) == 1) {
@@ -292,9 +281,9 @@ int main(int argc, char const *argv[]) {
         //drawPoint2D(test_vt.a.x, test_vt.a.z);
         //drawPoint2D(test_vt.b.x, test_vt.b.z);
         //drawPoint2D(test_vt.c.x, test_vt.c.z);
-        drawLine2DW(test_vt.a.x, test_vt.a.z, test_vt.b.x, test_vt.b.z);
-        drawLine2DW(test_vt.b.x, test_vt.b.z, test_vt.c.x, test_vt.c.z);
-        drawLine2DW(test_vt.c.x, test_vt.c.z, test_vt.a.x, test_vt.a.z);
+        //drawLine2DW(test_vt.a.x, test_vt.a.z, test_vt.b.x, test_vt.b.z);
+        //drawLine2DW(test_vt.b.x, test_vt.b.z, test_vt.c.x, test_vt.c.z);
+        //drawLine2DW(test_vt.c.x, test_vt.c.z, test_vt.a.x, test_vt.a.z);
         drawLine2D(test_vt.a.x, test_vt.a.z, test_vt.b.x, test_vt.b.z);
         drawLine2D(test_vt.b.x, test_vt.b.z, test_vt.c.x, test_vt.c.z);
         drawLine2D(test_vt.c.x, test_vt.c.z, test_vt.a.x, test_vt.a.z);
@@ -309,6 +298,8 @@ int main(int argc, char const *argv[]) {
         drawLine2D(test_vt2.b.x, test_vt2.b.z, test_vt2.c.x, test_vt2.c.z);
         drawLine2D(test_vt2.c.x, test_vt2.c.z, test_vt2.a.x, test_vt2.a.z);
 
+        test_vt2.c.z += 0.001;
+        test_vt2.c.x -= 0.001;
 
         SDL_UpdateTexture(texture, NULL, pixels, SCREEN_WIDTH * 4);
         SDL_RenderCopyEx(
