@@ -118,8 +118,108 @@ void fillScreen(uint32_t col) {
 }
 
 void drawPoint2D(double x, double z) {
-    pixels[ (int)(((x + 1) * 0.5) * (SCREEN_WIDTH - 1)) + (int)((z + 1) * 0.5 * (SCREEN_HEIGHT - 1)) * SCREEN_WIDTH] = 0xFFFFFFFF;
+    /*
+    Take point from (-1,-1) to (1,1) and draw to pixel buffer
+    */
+    pixels[ 
+        (int)((x + 1) * 0.5 * (SCREEN_WIDTH - 1)) + 
+        (int)((z + 1) * 0.5 * (SCREEN_HEIGHT - 1)) * 
+        SCREEN_WIDTH] = 0xFFFFFFFF;
 }
+
+void drawLine2DW(double x1, double z1, double x2, double z2) {
+    
+    int screenX1 = (int)((x1 + 1) * 0.5 * (SCREEN_WIDTH - 1));
+    int screenZ1 = (int)((z1 + 1) * 0.5 * (SCREEN_HEIGHT - 1));
+    int screenX2 = (int)((x2 + 1) * 0.5 * (SCREEN_WIDTH - 1));
+    int screenZ2 = (int)((z2 + 1) * 0.5 * (SCREEN_HEIGHT - 1));
+    
+    int x = screenX2 - screenX1;
+    int z = screenZ2 - screenZ1;
+
+    double step;
+    if (fabs(x) >= fabs(z)) {
+        step = (double)z / x;
+
+        if (getSign(x) == 1) {
+            for (int i = 0; i < x; i += 1) {
+                pixels[ (screenX1 + i) + (int)(screenZ1 + (step * i)) * SCREEN_WIDTH] = 0xFFFFFFFF;
+            }
+        }
+        else {
+            for (int i = 0; i > x; i -= 1) {
+                pixels[ (screenX1 + i) + (int)(screenZ1 + (step * i)) * SCREEN_WIDTH] = 0xFFFFFFFF;
+            }
+        }  
+    }
+    else {
+        step = (double)x / z;
+
+        if (getSign(z) == 1) {
+            for (int i = 0; i < z; i += 1) {
+                pixels[ (int)(screenX1 + (step * i)) + (screenZ1 + i) * SCREEN_WIDTH] = 0xFFFFFFFF;
+            }
+        }
+        else {
+            for (int i = 0; i > z; i -= 1) {
+                pixels[ (int)(screenX1 + (step * i)) + (screenZ1 + i) * SCREEN_WIDTH] = 0xFFFFFFFF;
+            }
+        }
+    }
+}
+
+void drawLine2D(double x1, double z1, double x2, double z2) {
+    
+    double screenX1 = ((x1 + 1) * 0.5 * (SCREEN_WIDTH - 1));
+    double screenZ1 = ((z1 + 1) * 0.5 * (SCREEN_HEIGHT - 1));
+    double screenX2 = ((x2 + 1) * 0.5 * (SCREEN_WIDTH - 1));
+    double screenZ2 = ((z2 + 1) * 0.5 * (SCREEN_HEIGHT - 1));
+    
+    //double sX = sX2 - sX1;
+    //double sZ = sZ2 - sZ1;
+    double x = screenX2 - screenX1;
+    double z = screenZ2 - screenZ1;
+
+    //int screenX1 = (int)sX1;
+    //int screenZ1 = (int)sZ1;
+    //int screenX2 = (int)sX2;
+    //int screenZ2 = (int)sZ2;
+    
+    //int x = screenX2 - screenX1;
+    //int z = screenZ2 - screenZ1;
+
+    double step;
+    if (fabs(x) >= fabs(z)) {
+        //step = sZ / sX;
+        step = z / x;
+
+        if (getSign(x) == 1) {
+            for (int i = 0; i < x; i += 1) {
+                pixels[ (int)(screenX1 + i) + (int)(screenZ1 + (step * i)) * SCREEN_WIDTH] = 0xFFFFFFFF;
+            }
+        }
+        else {
+            for (int i = 0; i > x; i -= 1) {
+                pixels[ (int)(screenX1 + i) + (int)(screenZ1 + (step * i)) * SCREEN_WIDTH] = 0xFFFFFFFF;
+            }
+        }  
+    }
+    else {
+        step = x / z;
+
+        if (getSign(z) == 1) {
+            for (int i = 0; i < z; i += 1) {
+                pixels[ (int)(screenX1 + (step * i)) + (int)(screenZ1 + i) * SCREEN_WIDTH] = 0xFFFFFFFF;
+            }
+        }
+        else {
+            for (int i = 0; i > z; i -= 1) {
+                pixels[ (int)(screenX1 + (step * i)) + (int)(screenZ1 + i) * SCREEN_WIDTH] = 0xFFFFFFFF;
+            }
+        }
+    }
+}
+
 
 int main(int argc, char const *argv[]) {
     printf("%s\n", ":)");
@@ -189,13 +289,26 @@ int main(int argc, char const *argv[]) {
         //pixels[ (1 - 1) + (1 - 1) * SCREEN_WIDTH] = 0xFFFFFFFF;
         //pixels[ (320 - 1) + (240 - 1) * SCREEN_WIDTH] = 0xFFFFFFFF;
         //pixels[ (int)(1 * (SCREEN_WIDTH - 1)) + (int)(1 * (SCREEN_HEIGHT - 1)) * SCREEN_WIDTH] = 0xFFFFFFFF;
-        drawPoint2D(test_vt.a.x, test_vt.a.z);
-        drawPoint2D(test_vt.b.x, test_vt.b.z);
-        drawPoint2D(test_vt.c.x, test_vt.c.z);
+        //drawPoint2D(test_vt.a.x, test_vt.a.z);
+        //drawPoint2D(test_vt.b.x, test_vt.b.z);
+        //drawPoint2D(test_vt.c.x, test_vt.c.z);
+        drawLine2DW(test_vt.a.x, test_vt.a.z, test_vt.b.x, test_vt.b.z);
+        drawLine2DW(test_vt.b.x, test_vt.b.z, test_vt.c.x, test_vt.c.z);
+        drawLine2DW(test_vt.c.x, test_vt.c.z, test_vt.a.x, test_vt.a.z);
+        drawLine2D(test_vt.a.x, test_vt.a.z, test_vt.b.x, test_vt.b.z);
+        drawLine2D(test_vt.b.x, test_vt.b.z, test_vt.c.x, test_vt.c.z);
+        drawLine2D(test_vt.c.x, test_vt.c.z, test_vt.a.x, test_vt.a.z);
 
-        drawPoint2D(test_vt2.a.x, test_vt2.a.z);
-        drawPoint2D(test_vt2.b.x, test_vt2.b.z);
-        drawPoint2D(test_vt2.c.x, test_vt2.c.z);
+        //drawPoint2D(test_vt2.a.x, test_vt2.a.z);
+        //drawPoint2D(test_vt2.b.x, test_vt2.b.z);
+        //drawPoint2D(test_vt2.c.x, test_vt2.c.z);
+        drawLine2DW(test_vt2.a.x, test_vt2.a.z, test_vt2.b.x, test_vt2.b.z);
+        drawLine2DW(test_vt2.b.x, test_vt2.b.z, test_vt2.c.x, test_vt2.c.z);
+        drawLine2DW(test_vt2.c.x, test_vt2.c.z, test_vt2.a.x, test_vt2.a.z);
+        drawLine2D(test_vt2.a.x, test_vt2.a.z, test_vt2.b.x, test_vt2.b.z);
+        drawLine2D(test_vt2.b.x, test_vt2.b.z, test_vt2.c.x, test_vt2.c.z);
+        drawLine2D(test_vt2.c.x, test_vt2.c.z, test_vt2.a.x, test_vt2.a.z);
+
 
         SDL_UpdateTexture(texture, NULL, pixels, SCREEN_WIDTH * 4);
         SDL_RenderCopyEx(
