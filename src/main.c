@@ -13,11 +13,11 @@
 typedef struct vec3_s { double x, y, z; } vec3;
 typedef struct vert_s { vec3 a, b, c; } vert;
 
-#define SCREEN_WIDTH  320 // 1440// 1600// 800
-#define SCREEN_HEIGHT 240 // 1080// 900// 450
+#define SCREEN_WIDTH  320 // 1440 // 1280 // 1024 // 800 // 640 // 400 // 320 // 160 // 40
+#define SCREEN_HEIGHT 240 // 1080 // 960 // 768 // 600 // 480 // 300 // 240 // 120 // 30
 
-#define WINDOW_WIDTH  640 // 1440// 1600// 800 // 1920 // 640
-#define WINDOW_HEIGHT 480 // 1080// 900// 450 // 1080 // 480
+#define WINDOW_WIDTH  640 // 1440 // 1280 // 1024 // 800 // 640 // 400 // 320 // 160 // 40
+#define WINDOW_HEIGHT 480 // 1080 // 960 // 768 // 600 // 480 // 300 // 240 // 120 // 30
 
 vert test_vt = {{-1, 0.5, 1},
                 {-1, 0.5, -1},
@@ -26,6 +26,7 @@ vert test_vt = {{-1, 0.5, 1},
 vert test_vt2 = {{-0.784, 0.25, 0.453},
                 {-0.656, 0.25, -0.733},
                 {0.826, 0.25, 0.234}};
+//                {0.826, 0.25, -0.834}};
 
 //vert test_vt = {{0, 0.5, 0},
 //                {1, 0.5, 0.5},
@@ -99,13 +100,11 @@ void zeroOut(double* pVal, double step) {
     if (getSign(*pVal) != getSign(oldVal)) {*pVal = 0;}
 }
 
-
 void setPos(double x, double y, double z) {
     player.pos.x = x;
     player.pos.y = y;
     player.pos.z = z;
 }
-
 
 void drawCrosshair() {
     pixels[(SCREEN_WIDTH / 2) + (SCREEN_WIDTH * (SCREEN_HEIGHT / 2))] = 0xFFFFFFFF;
@@ -127,43 +126,119 @@ void drawPoint2D(double x, double z) {
         SCREEN_WIDTH] = 0xFFFFFFFF;
 }
 
-void drawLine2DW(double x1, double z1, double x2, double z2) {
-    
+//void drawLine2DW(double x1, double z1, double x2, double z2) {
+//    
+//    int screenX1 = (int)((x1 + 1) * 0.5 * (SCREEN_WIDTH - 1));
+//    int screenZ1 = (int)((z1 + 1) * 0.5 * (SCREEN_HEIGHT - 1));
+//    int screenX2 = (int)((x2 + 1) * 0.5 * (SCREEN_WIDTH - 1));
+//    int screenZ2 = (int)((z2 + 1) * 0.5 * (SCREEN_HEIGHT - 1));
+//    
+//    int x = screenX2 - screenX1;
+//    int z = screenZ2 - screenZ1;
+//
+//    double step;
+//    if (fabs(x) >= fabs(z)) {
+//        step = (double)z / x;
+//
+//        if (getSign(x) == 1) {
+//            for (int i = 0; i < x; i += 1) {
+//                pixels[ (screenX1 + i) + (int)(screenZ1 + (step * i)) * SCREEN_WIDTH] = 0xFFFFFFFF;
+//            }
+//        }
+//        else {
+//            for (int i = 0; i > x; i -= 1) {
+//                pixels[ (screenX1 + i) + (int)(screenZ1 + (step * i)) * SCREEN_WIDTH] = 0xFFFFFFFF;
+//            }
+//        }  
+//    }
+//    else {
+//        step = (double)x / z;
+//
+//        if (getSign(z) == 1) {
+//            for (int i = 0; i < z; i += 1) {
+//                pixels[ (int)(screenX1 + (step * i)) + (screenZ1 + i) * SCREEN_WIDTH] = 0xFFFFFFFF;
+//            }
+//        }
+//        else {
+//            for (int i = 0; i > z; i -= 1) {
+//                pixels[ (int)(screenX1 + (step * i)) + (screenZ1 + i) * SCREEN_WIDTH] = 0xFFFFFFFF;
+//            }
+//        }
+//    }
+//}
+
+void drawLine2DB(double x1, double z1, double x2, double z2) {
     int screenX1 = (int)((x1 + 1) * 0.5 * (SCREEN_WIDTH - 1));
     int screenZ1 = (int)((z1 + 1) * 0.5 * (SCREEN_HEIGHT - 1));
     int screenX2 = (int)((x2 + 1) * 0.5 * (SCREEN_WIDTH - 1));
     int screenZ2 = (int)((z2 + 1) * 0.5 * (SCREEN_HEIGHT - 1));
     
-    int x = screenX2 - screenX1;
-    int z = screenZ2 - screenZ1;
+    if (fabs(screenX2 - screenX1) > fabs(screenZ2 - screenZ1)) {
+    
+        if (screenX1 > screenX2) {
 
-    double step;
-    if (fabs(x) >= fabs(z)) {
-        step = (double)z / x;
-
-        if (getSign(x) == 1) {
-            for (int i = 0; i < x; i += 1) {
-                pixels[ (screenX1 + i) + (int)(screenZ1 + (step * i)) * SCREEN_WIDTH] = 0xFFFFFFFF;
-            }
+            int tmpX = screenX1;
+            screenX1 = screenX2;
+            screenX2 = tmpX;
+            
+            int tmpZ = screenZ1;
+            screenZ1 = screenZ2;
+            screenZ2 = tmpZ;
         }
-        else {
-            for (int i = 0; i > x; i -= 1) {
-                pixels[ (screenX1 + i) + (int)(screenZ1 + (step * i)) * SCREEN_WIDTH] = 0xFFFFFFFF;
-            }
-        }  
-    }
+
+        int dX = screenX2 - screenX1;
+        int dZ = screenZ2 - screenZ1;
+
+        int dir = 1;
+        if (dZ < 0) {
+            dir = -1;
+            dZ *= -1;
+        }
+
+        int currentZ = screenZ1;
+        int decision = 2*dZ - dX;
+
+        for (int i = 0; i < dX; i += 1) {
+            pixels[(screenX1 + i) + (currentZ * SCREEN_WIDTH)] = 0xFFFFFFFF;
+
+            decision += 2*dZ;
+            if (decision >= 0) {
+                currentZ += dir;
+                decision -= 2*dX;
+            } 
+        }
+    } 
     else {
-        step = (double)x / z;
+        if (screenZ1 > screenZ2) {
+            int tmpX = screenX1;
+            screenX1 = screenX2;
+            screenX2 = tmpX;
 
-        if (getSign(z) == 1) {
-            for (int i = 0; i < z; i += 1) {
-                pixels[ (int)(screenX1 + (step * i)) + (screenZ1 + i) * SCREEN_WIDTH] = 0xFFFFFFFF;
-            }
+            int tmpZ = screenZ1;
+            screenZ1 = screenZ2;
+            screenZ2 = tmpZ;
         }
-        else {
-            for (int i = 0; i > z; i -= 1) {
-                pixels[ (int)(screenX1 + (step * i)) + (screenZ1 + i) * SCREEN_WIDTH] = 0xFFFFFFFF;
-            }
+
+        int dX = screenX2 - screenX1;
+        int dZ = screenZ2 - screenZ1;
+
+        int dir = 1;
+        if (dX < 0) {
+            dir = -1;
+            dX *= -1;
+        }
+
+        int currentX = screenX1;
+        int decision = 2*dX - dZ;
+
+        for (int i = 0; i < dZ; i += 1) {
+            pixels[currentX + ((screenZ1 + i) * SCREEN_WIDTH)] = 0xFFFFFFFF;
+
+            decision += 2*dX;
+            if (decision >= 0) {
+                currentX += dir;
+                decision -= 2*dZ;
+            } 
         }
     }
 }
@@ -184,12 +259,12 @@ void drawLine2D(double x1, double z1, double x2, double z2) {
 
         if (getSign(x) == 1) {
             for (int i = 0; i < x; i += 1) {
-                pixels[ (int)(screenX1 + i) + (int)(screenZ1 + (step * i)) * SCREEN_WIDTH] = 0xFFFFFFFF;
+                pixels[ (int)(screenX1 + i) + (int)(screenZ1 + (step * i)) * SCREEN_WIDTH] = 0x0FFFFFFF;
             }
         }
         else {
             for (int i = 0; i > x; i -= 1) {
-                pixels[ (int)(screenX1 + i) + (int)(screenZ1 + (step * i)) * SCREEN_WIDTH] = 0xFFFFFFFF;
+                pixels[ (int)(screenX1 + i) + (int)(screenZ1 + (step * i)) * SCREEN_WIDTH] = 0x0FFFFFFF;
             }
         }  
     }
@@ -198,15 +273,33 @@ void drawLine2D(double x1, double z1, double x2, double z2) {
 
         if (getSign(z) == 1) {
             for (int i = 0; i < z; i += 1) {
-                pixels[ (int)(screenX1 + (step * i)) + (int)(screenZ1 + i) * SCREEN_WIDTH] = 0xFFFFFFFF;
+                pixels[ (int)(screenX1 + (step * i)) + (int)(screenZ1 + i) * SCREEN_WIDTH] = 0x0FFFFFFF;
             }
         }
         else {
             for (int i = 0; i > z; i -= 1) {
-                pixels[ (int)(screenX1 + (step * i)) + (int)(screenZ1 + i) * SCREEN_WIDTH] = 0xFFFFFFFF;
+                pixels[ (int)(screenX1 + (step * i)) + (int)(screenZ1 + i) * SCREEN_WIDTH] = 0x0FFFFFFF;
             }
         }
     }
+}
+
+//void drawVert2DW(vert v) {
+//    drawLine2DW(v.a.x, v.a.z, v.b.x, v.b.z);
+//    drawLine2DW(v.b.x, v.b.z, v.c.x, v.c.z);
+//    drawLine2DW(v.c.x, v.c.z, v.a.x, v.a.z);
+//}
+
+void drawVert2DB(vert v) {
+    drawLine2DB(v.a.x, v.a.z, v.b.x, v.b.z);
+    drawLine2DB(v.b.x, v.b.z, v.c.x, v.c.z);
+    drawLine2DB(v.c.x, v.c.z, v.a.x, v.a.z);
+}
+
+void drawVert2D(vert v) {
+    drawLine2D(v.a.x, v.a.z, v.b.x, v.b.z);
+    drawLine2D(v.b.x, v.b.z, v.c.x, v.c.z);
+    drawLine2D(v.c.x, v.c.z, v.a.x, v.a.z);
 }
 
 
@@ -275,31 +368,14 @@ int main(int argc, char const *argv[]) {
         //memset(pixels, 0, sizeof(pixels));    
         fillScreen(0x222222FF);
 
-        //pixels[ (1 - 1) + (1 - 1) * SCREEN_WIDTH] = 0xFFFFFFFF;
-        //pixels[ (320 - 1) + (240 - 1) * SCREEN_WIDTH] = 0xFFFFFFFF;
-        //pixels[ (int)(1 * (SCREEN_WIDTH - 1)) + (int)(1 * (SCREEN_HEIGHT - 1)) * SCREEN_WIDTH] = 0xFFFFFFFF;
-        //drawPoint2D(test_vt.a.x, test_vt.a.z);
-        //drawPoint2D(test_vt.b.x, test_vt.b.z);
-        //drawPoint2D(test_vt.c.x, test_vt.c.z);
-        //drawLine2DW(test_vt.a.x, test_vt.a.z, test_vt.b.x, test_vt.b.z);
-        //drawLine2DW(test_vt.b.x, test_vt.b.z, test_vt.c.x, test_vt.c.z);
-        //drawLine2DW(test_vt.c.x, test_vt.c.z, test_vt.a.x, test_vt.a.z);
-        drawLine2D(test_vt.a.x, test_vt.a.z, test_vt.b.x, test_vt.b.z);
-        drawLine2D(test_vt.b.x, test_vt.b.z, test_vt.c.x, test_vt.c.z);
-        drawLine2D(test_vt.c.x, test_vt.c.z, test_vt.a.x, test_vt.a.z);
+        drawVert2DB(test_vt);
+        drawVert2D(test_vt);
 
-        //drawPoint2D(test_vt2.a.x, test_vt2.a.z);
-        //drawPoint2D(test_vt2.b.x, test_vt2.b.z);
-        //drawPoint2D(test_vt2.c.x, test_vt2.c.z);
-        drawLine2DW(test_vt2.a.x, test_vt2.a.z, test_vt2.b.x, test_vt2.b.z);
-        drawLine2DW(test_vt2.b.x, test_vt2.b.z, test_vt2.c.x, test_vt2.c.z);
-        drawLine2DW(test_vt2.c.x, test_vt2.c.z, test_vt2.a.x, test_vt2.a.z);
-        drawLine2D(test_vt2.a.x, test_vt2.a.z, test_vt2.b.x, test_vt2.b.z);
-        drawLine2D(test_vt2.b.x, test_vt2.b.z, test_vt2.c.x, test_vt2.c.z);
-        drawLine2D(test_vt2.c.x, test_vt2.c.z, test_vt2.a.x, test_vt2.a.z);
+        drawVert2DB(test_vt2);
+        drawVert2D(test_vt2);
 
-        test_vt2.c.z += 0.001;
-        test_vt2.c.x -= 0.001;
+        test_vt2.c.z += 0.0005;
+        test_vt2.c.x -= 0.0005;
 
         SDL_UpdateTexture(texture, NULL, pixels, SCREEN_WIDTH * 4);
         SDL_RenderCopyEx(
